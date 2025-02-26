@@ -2,9 +2,14 @@ package wesp.company.feirafacilapi.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import wesp.company.feirafacilapi.domain.enums.EnumUserType;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -13,19 +18,16 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "WS_USER")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String phoneNumber;
 
     @ToString.Exclude
@@ -38,14 +40,18 @@ public class User {
 
     private String imageUrl;
 
-    @Column(nullable = false)
     private boolean enabled;
 
-    @Column(nullable = false, updatable = false)
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public User(String email, String password, EnumUserType role) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.enabled = true;
+    }
 
     @PreUpdate
     public void preUpdate() {
@@ -64,5 +70,20 @@ public class User {
     public void deactivate() {
         this.enabled = false;
         this.update();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.role == EnumUserType.SELLER) {
+            return List.of(new SimpleGrantedAuthority("ROLE_SELLER"),
+                            new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }else {
+            return List.of(new SimpleGrantedAuthority("ROLE_SELLER"));
+        }
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
     }
 }

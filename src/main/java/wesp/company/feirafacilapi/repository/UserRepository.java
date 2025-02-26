@@ -3,6 +3,7 @@ package wesp.company.feirafacilapi.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import wesp.company.feirafacilapi.domain.dtos.user.response.UserResponse;
 import wesp.company.feirafacilapi.domain.entities.User;
 
@@ -14,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByName(String name);
     Page<UserResponse> findAllUsersByOrderByNameAsc(Pageable pageable);
     boolean existsByEmail(String email);
+    UserDetails findUserByEmail(String email);
 }
